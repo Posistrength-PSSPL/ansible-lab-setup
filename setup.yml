@@ -1,0 +1,86 @@
+---
+
+- name: install libvirt
+  hosts: localhost
+  connection: local
+  become: true
+  become_user: root
+  tasks:
+  - name: install libvirt virtualisation group
+    dnf: name="@Virtualization" state=present
+    tags: packages
+
+  - name: install qemu-img
+    dnf: name="qemu-img" state=present
+    tags: packages
+
+  - name: install virt-install
+    tags: packages
+    dnf: name="virt-install" state=present
+
+  tags:  
+  - libvirt
+  - prereqs
+
+- name: prepare server for kickstart
+  hosts: localhost
+  connection: local
+  become: true
+  become_user: root
+
+  vars:
+    centos_url: https://www.mirrorservice.org/sites/mirror.centos.org/7/isos/x86_64/CentOS-7-x86_64-Minimal-1511.iso
+  
+  tasks:
+  - name: install apache httpd
+    dnf: name=httpd state=present
+    tags: 
+    - packages
+    - apache
+
+  - name: configure the apache service
+    service: name=httpd state=started enabled=yes
+    tags: 
+    - services
+    - apache
+
+  - name: permit http traffic
+    firewalld: service=http permanent=true state=enabled immediate=true zone=FedoraWorkstation
+    tags: 
+    - firewall
+
+  - name: create a kickstart file
+    copy: src=files/el7.ks dest=/var/www/html/el7.ks
+    tags:
+    - content
+    - apache
+
+  # - name: download installation media
+  #   get_url: url={{ centos_url }} dest=/tmp/
+  #   tags: getmedia
+
+- name: create virtual machines
+  hosts: localhost
+  connection: local
+  become: true
+  become_user: root
+
+  vars:
+    vms:
+    - centos01.example.com
+    - centos2.example.com
+
+  tasks:
+  - name: create the virtual machines
+    command: qemu-img create -f qcow2 /var/lib/libvirt/images/{{ item }}.qcow2 8192 creates=/var/lib/libvirt/images/{{ item }}.qcow2
+    with_items: "{{vms}}"
+    tags: vmcreate
+
+
+
+# - name: install virtual machines
+#   hosts: localhost
+#   connection: local
+#   tasks:
+# 
+# vim:sw=2:ts=2:et:ai
