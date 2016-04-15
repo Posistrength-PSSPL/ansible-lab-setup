@@ -74,13 +74,22 @@
   vars:
     vms:
     - centos01.example.com
-    - centos02.example.com
+    # - centos02.example.com
 
   tasks:
   - name: create the virtual machine(s)
-    command: virt-install --name {{ item }} --memory 2048 --disk size=8,pool=images --location /tmp/CentOS-7-x86_64-Minimal-1511.iso --graphics none --extra-args 'console=ttyS0,115200 serial ks=http://192.168.122.1/el7.ks' --os-type linux
+    # command: virt-install --name {{ item }} --memory 2048 --disk size=8,pool=images --location /tmp/CentOS-7-x86_64-Minimal-1511.iso --graphics none --extra-args 'console=ttyS0,115200 serial ks=http://192.168.122.1/el7.ks' --os-type linux
+    command: virt-install --name {{ item }} --memory 2048 --disk size=8,pool=images --location /tmp/CentOS-7-x86_64-Minimal-1511.iso --graphics none --extra-args 'console=ttyS0,115200 serial ks=http://{{ ansible_virbr0.ipv4.address }}/el7.ks' --os-type linux
     with_items: "{{vms}}"
     tags: vmcreate
+
+  # - name: wait for ssh to start
+  #   wait_for: 
+  #     port: 22 
+  #     host: "{{ item.public_ip }}"
+  #     timeout: 300
+  #   with_items: result.tagged_instances
+
 
 # - name: install virtual machines
 #   hosts: localhost
