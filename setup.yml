@@ -55,9 +55,15 @@
     - content
     - apache
 
+  - name: copy boot media
+    copy: src=files/CentOS-7-x86_64-Minimal-1511.iso dest=/tmp/CentOS-7-x86_64-Minimal-1511.iso
+    tags:
+    - content
+    - iso
+
   # - name: download installation media
-  #   get_url: url={{ centos_url }} dest=/tmp/
-  #   tags: getmedia
+  #  get_url: url={{ centos_url }} dest=/tmp/
+  #  tags: getmedia
 
 - name: create virtual machines
   hosts: localhost
@@ -68,15 +74,13 @@
   vars:
     vms:
     - centos01.example.com
-    - centos2.example.com
+    - centos02.example.com
 
   tasks:
-  - name: create the virtual machines
-    command: qemu-img create -f qcow2 /var/lib/libvirt/images/{{ item }}.qcow2 8192 creates=/var/lib/libvirt/images/{{ item }}.qcow2
+  - name: create the virtual machine(s)
+    command: virt-install --name {{ item }} --memory 2048 --disk size=8,pool=images --location /tmp/CentOS-7-x86_64-Minimal-1511.iso --graphics none --extra-args 'console=ttyS0,115200 serial ks=http://192.168.122.1/el7.ks' --os-type linux
     with_items: "{{vms}}"
     tags: vmcreate
-
-
 
 # - name: install virtual machines
 #   hosts: localhost
