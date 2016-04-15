@@ -6,18 +6,18 @@
 
 # What does the playbook do
 
-1 play #1 (install libvirt)
-	1 install libvirt virtualisation group
-	1 install qemu-img
-	1 install virt-install
-1 play #2 (prepare server for kickstart)
-	1 install apache httpd
-	1 configure the apache service
-	1 permit http traffic
-	1 create a kickstart file
-	1 copy boot media
-1 play #3 (create virtual machines)
-	1 create the virtual machine(s)
+1. play #1 (install libvirt)
+  1. install libvirt virtualisation group
+  1. install qemu-img
+  1. install virt-install
+1. play #2 (prepare server for kickstart)
+  1. install apache httpd
+  1. configure the apache service
+  1. permit http traffic
+  1. create a kickstart file
+  1. copy boot media
+1. play #3 (create virtual machines)
+  1. create the virtual machine(s)
 
 
 ```
