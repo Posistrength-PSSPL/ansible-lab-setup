@@ -46,3 +46,7 @@ playbook: setup.yml
 https://fedoraproject.org/wiki/Getting_started_with_virtualization
 
 https://github.com/hicknhack-software/ansible-libvirt Roles that help create and manage multiple libvirt virtual machines.
+
+http://docs.ansible.com/ansible/playbooks_loops.html#using-register-with-a-loop
+
+http://thinkansible.com/waiting-on-tasks/
