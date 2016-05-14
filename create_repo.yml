@@ -1,0 +1,55 @@
+---
+
+- name: create a local yum repository
+  hosts: localhost
+  connection: local
+  become: true
+  become_user: root
+
+  vars:
+    iso: files/CentOS-7-x86_64-DVD-1511.iso
+    docroot: /var/www/html
+
+  tasks:
+  - name: create the mount point  # nb: the mount module would create this automatically
+                                  # this is just to be explicit
+    file:
+      path: /mnt/iso
+      state: directory
+
+  - name: mount the iso
+    mount:
+      fstype: iso9660
+      name: /mnt/iso
+      opts: ro
+      src: "{{ iso }}"
+      state: mounted
+
+  - name: create the repository directory
+    file:
+      path: "{{ docroot }}/repos/centos/7"
+      state: directory
+
+  - name: synchronise the rpms
+    synchronize:
+      delete: yes
+      dest: "{{ docroot }}/repos/centos/7"
+      src: /mnt/iso/Packages
+      
+  - name: install createrepo
+    dnf:
+      name: createrepo
+      state: present
+
+  - name: create the repository metadata
+    command: /usr/bin/createrepo "{{ docroot }}/repos/centos/7"
+
+  - name: unmount the iso
+    mount:
+      fstype: iso9660
+      name: /mnt/iso
+      opts: ro
+      src: "{{ iso }}"
+      state: unmounted
+
+# vim:sw=2:ts=2:et:ai
