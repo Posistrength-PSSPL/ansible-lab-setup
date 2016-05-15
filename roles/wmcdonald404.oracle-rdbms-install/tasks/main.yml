@@ -1,0 +1,58 @@
+---
+# tasks file for wmcdonald404.oracle-rdbms-install
+
+- name: create the directory structure
+  file:
+    group: dba
+    owner: oracle
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+  with_items:
+    - /tmp/oracle/rdbms/11g/linux/x86_64/media
+    - /tmp/oracle/rdbms/11g/linux/x86_64/response
+    - /tmp/oracle/rdbms/11g/linux/x86_64/install
+
+- name: copy the oracle install media
+  copy:
+    group: dba
+    owner: oracle
+    src: "{{ item }}"
+    dest: /tmp/oracle/rdbms/11g/linux/x86_64/media
+  with_items:
+    - p13390677_112040_Linux-x86-64_1of7.zip
+    - p13390677_112040_Linux-x86-64_2of7.zip
+
+- name: unpack the oracle install media
+  unarchive:
+    group: dba
+    owner: oracle
+    src: "{{ item.src }}"
+    dest: /tmp/oracle/rdbms/11g/linux/x86_64/install
+    copy: no
+    creates: "{{ item.creates }}"
+  with_items:
+    - { src: '/tmp/oracle/rdbms/11g/linux/x86_64/media/p13390677_112040_Linux-x86-64_1of7.zip', 
+        creates: '/tmp/oracle/rdbms/11g/linux/x86_64/install/database/install/addLangs.sh' }
+    - { src: '/tmp/oracle/rdbms/11g/linux/x86_64/media/p13390677_112040_Linux-x86-64_2of7.zip', 
+        creates: '/tmp/oracle/rdbms/11g/linux/x86_64/install/database/stage/Components/oracle.ctx' }
+
+- name: copy the oracle rdbms install template
+  template:
+    group: dba
+    owner: oracle
+    src: oracle-rdbms-11204.rsp.j2
+    dest: /tmp/oracle/rdbms/11g/linux/x86_64/response/oracle-rdbms-11204.rsp
+    
+# - name: copy the oracle rdbms install template
+#   file:
+#     group: dba
+#     owner: oracle
+#     src: 11204_rdbms.response
+#     dest: /tmp/oracle/rdbms/11g/linux/x86_64/response/11204_rdbms.response
+    
+- name: run the oracle universal installer
+  command: su - oracle -c "/tmp/oracle/rdbms/11g/linux/x86_64/install/database/runInstaller -silent -responseFile /tmp/oracle/rdbms/11g/linux/x86_64/response/11204_rdbms.response -waitforcompletion"
+
+
+# vim:sw=2:ts=2:et:ai

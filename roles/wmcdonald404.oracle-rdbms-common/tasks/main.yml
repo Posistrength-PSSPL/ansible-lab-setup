@@ -1,0 +1,40 @@
+---
+# tasks file for wmcdonald404.oracle-rdbms-common
+
+- name: copy oracle pre-install
+  get_url:
+    url: https://github.com/wmcdonald404/wmcdonald404-rpmbuild/blob/master/RPMS/x86_64/oracle-rdbms-server-11gR2-preinstall-1.0-4.wmcd.el7.x86_64.rpm?raw=true
+    dest: /tmp/oracle-rdbms-server-11gR2-preinstall-1.0-4.wmcd.el7.x86_64.rpm
+
+- name: install oracle pre-install
+  yum:
+    name: /tmp/oracle-rdbms-server-11gR2-preinstall-1.0-4.wmcd.el7.x86_64.rpm
+    state: present
+
+- name: install epel release
+  yum:
+    name: epel-release
+    state: present
+
+- name: install additional packages
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ extra_packages }}"
+
+- name: create an ORACLE_BASE directory
+  file:
+    path: "{{ oracle_base }}"
+    state: directory
+    owner: oracle
+    group: oinstall
+
+- name: create an oracle inventory
+  copy:
+    src: oraInst.loc
+    dest: /etc/oraInst.loc
+    owner: oracle
+    group: oinstall
+    mode: 0644
+
+# vim:sw=2:ts=2:et:ai

@@ -1,0 +1,14 @@
+---
+
+- name: apply oracle host baseline
+  hosts: dbs:&dev
+
+  roles:
+    - wmcdonald404.oracle-rdbms-common
+    - wmcdonald404.oracle-rdbms-install
+ 
+  tags:  
+  - oracle
+  - prereqs
+
+# vim:sw=2:ts=2:et:ai

@@ -1,0 +1,12 @@
+---
+# vars file for wmcdonald404.oracle-rdbms-common
+
+extra_packages:
+  - rlwrap
+  - tree
+  - unzip
+
+oracle_base: /u01/app/oracle/
+
+# oracle_home: /u01/app/oracle/
+
