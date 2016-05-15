@@ -27,3 +27,11 @@ rootpw --iscrypted $1$X/10t/eV$D.GvqWoWImRWGlCdI/L.t1
 %packages --nobase --ignoremissing
 @core
 %end
+
+%post
+mkdir ~root/.ssh && chmod 700 ~root/.ssh
+cat <<EOF > ~root/.ssh/authorized_keys
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDKmNGClhHO7aprRBeMVOTqXkQJqE1sCSyjrI4pnYT2cXOLwH1qOmsXu3TamvXBIuHf9V4DnXR6wzderoHJpjUceRrZmMwY9uIj0mmZdT1bqwzjqdniLk4ZRhI61WyBSR7Pjf2ieyLuxwWmfAFrdDeq6CY3G9G/eFUW3cW6XJRSCudsBKOr2YLI34qVrHAXtYWFARoNtPVSnith7dm8ohhNv7pohGEEugH8GhU+o7yF1QKzAjTnapc2VWe7Q7WWoMDr/9pJxZ9nK3mXPtFVQU5SOLs5CSRuy194K60N8eFxy0+J9Ei7YddnyFBe1yWga/bj2SW4c6oU0z0bNV+yfbp9 wmcdonald@gmail.com-2016
+EOF
+chmod 600 ~root/.ssh/authorized_keys
+%end

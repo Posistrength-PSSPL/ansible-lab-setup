@@ -1,28 +1,25 @@
 ---
 
-- name: create virtual machines
-  hosts: localhost
+- name: create virtual machine(s)
+  hosts: dev:&dbs
   connection: local
   become: true
   become_user: root
-
-  vars:
-    vms:
-    - centos01.example.com
 
   tasks:
 
   - name: install the virtual machine(s)
     command: virt-install 
       --name {{ item }} 
-      --memory 2048 
-      --disk size=8,pool=images 
+      --memory 4096 
+      --disk size=16,pool=images 
       --location files/CentOS-7-x86_64-Minimal-1511.iso 
       --graphics none 
       --extra-args 'console=ttyS0,115200 serial ks=http://{{ ansible_virbr0.ipv4.address }}/el7.ks' 
       --os-type linux
       creates=/var/lib/libvirt/images/{{ item }}.qcow2
-    with_items: "{{ vms }}"
+    with_items: "{{ inventory_hostname }}"
+    delegate_to: localhost
 
   - name: wait for virt-install to complete
     virt: 
@@ -32,10 +29,12 @@
     until: vm_status.status == 'shutdown'
     retries: 15
     delay: 30
-    with_items: "{{ vms }}"
+    with_items: "{{ inventory_hostname }}"
+    delegate_to: localhost
 
   - name: start the virtual machine(s)
     command: virsh start {{ item }}
-    with_items: "{{ vms }}"
+    with_items: "{{ inventory_hostname }}"
+    delegate_to: localhost
 
 # vim:sw=2:ts=2:et:ai

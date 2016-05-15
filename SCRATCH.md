@@ -11,3 +11,5 @@ OK, this one definitely works. It needs http enabled on the libvirt host obvious
 
 ```
 
+  783  virsh destroy centos01.example.com; virsh undefine centos01.example.com
+
