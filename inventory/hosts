@@ -4,7 +4,7 @@ localhost
 [vms]
 vm10.dev.internal ansible_host=192.168.0.10
 vm11.dev.internal ansible_host=192.168.0.11
-vm12.dev.internal ansible_host=192.168.122.113
+vm12.dev.internal ansible_host=192.168.122.137
 
 vm20.tst.internal ansible_host=192.168.0.20
 vm21.tst.internal ansible_host=192.168.0.20
