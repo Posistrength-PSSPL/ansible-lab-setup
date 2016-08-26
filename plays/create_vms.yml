@@ -8,39 +8,47 @@
 
   tasks:
 
-  # - name: install the virtual machine(s)
-  #   command: virt-install 
-  #     --name {{ item }} 
-  #     --memory 2048 
-  #     --disk size=16,pool=images 
-  #     --location files/CentOS-7-x86_64-Minimal-1511.iso 
-  #     --graphics none 
-  #     --extra-args 'console=ttyS0,115200 serial ks=http://{{ ansible_virbr0.ipv4.address }}/el7.ks' 
-  #     --os-type linux
-  #     creates=/var/lib/libvirt/images/{{ item }}.qcow2
-  #   with_items: "{{ inventory_hostname }}"
-  #   delegate_to: localhost
+  - name: install the virtual machine(s)
+    command: virt-install 
+      --name {{ item }} 
+      --memory 2048 
+      --disk size=16,pool=images 
+      --location files/CentOS-7-x86_64-Minimal-1511.iso 
+      --graphics none 
+      --extra-args 'console=ttyS0,115200 serial ks=http://{{ ansible_virbr0.ipv4.address }}/el7.ks' 
+      --os-type linux
+      creates=/var/lib/libvirt/images/{{ item }}.qcow2
+    with_items: "{{ inventory_hostname }}"
+    delegate_to: localhost
 
-  # - name: wait for virt-install to complete
-  #   virt: 
-  #     name={{ item }}
-  #     command=status
-  #   register: vm_status
-  #   until: vm_status.status == 'shutdown'
-  #   retries: 120
-  #   delay: 30
-  #   with_items: "{{ inventory_hostname }}"
-  #   delegate_to: localhost
+  - name: wait for virt-install to complete
+    virt: 
+      name={{ item }}
+      command=status
+    register: vm_status
+    until: vm_status.status == 'shutdown'
+    retries: 120
+    delay: 30
+    with_items: "{{ inventory_hostname }}"
+    delegate_to: localhost
 
   - name: grab mac addresses
-    shell: virsh dumpxml {{ item }} | awk -F\' '/mac address/ { print $2 }'
+    shell: virsh dumpxml {{ inventory_hostname }} | awk -F\' '/mac address/ { print $2 }'
     register: mac_address
-    with_items: "{{ inventory_hostname }}"
 
   - name: populate net-update template
     template: src=../templates/net-update.sh.j2 dest=/tmp/net-update.sh mode="u+x" owner=root
-    with_items: "{{ mac_address.results }}"
     delegate_to: localhost
+
+
+  # - debug: msg="play_hosts is {{ play_hosts }}"
+  # - debug: msg="inventory_hostname is {{ inventory_hostname }}"
+  # - debug: 
+  #     var: mac_address
+  # - debug: msg="mac_address.results is {{ mac_address.results }}"
+  # - debug: msg="mac_address.results.[0] is {{ mac_address.results[0] }}"
+  # - debug: msg="mac_address.results.[0]['stdout'] is {{ mac_address.results[0]['stdout'] }}"
+
 
   # play_hosts is available as a list of hostnames that are in scope 
   # for the current play. This may be useful for filling out templates 

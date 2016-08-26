@@ -1,12 +1,24 @@
 #!/bin/sh
 
-{% for result in mac_address.results %}
-{{ result }}
+{% for host in play_hosts %}
+{{ hostvars[ inventory_hostname ] }}
+{% endfor %}
+-------
+
+
+{#
+-------
+virsh net-update default add ip-dhcp-host "<host mac='{{ mac_address.stdout }}' name='{{ inventory_hostname }}' ip='{{ hostvars[ inventory_hostname ]['ansible_host'] }}' />" --live --config
+{% endfor %}
 {% endfor %}
 
 
-{# {% for host in item %} #}
-{# virsh net-update default add ip-dhcp-host {{ host['stdout'] }} #}
-{# {% endfor %}  #}
+name='{{ host }}' ip='{{ hostvars[ host ]['ansible_host' }}' />" --live --config
+#}
 
+{# {{ mac_address.results[0]['stdout'] }} #}
+{# {{ mac_address.stdout }} #}
+{# {% for mac in mac_address.results[0] %} #}
+{#  {{ mac }}  #}
+{# {% endfor %} #}
 
