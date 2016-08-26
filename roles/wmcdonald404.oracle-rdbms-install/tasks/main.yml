@@ -1,49 +1,64 @@
 ---
 # tasks file for wmcdonald404.oracle-rdbms-install
 
-# - name: create the directory structure
-#   file:
-#     group: dba
-#     owner: oracle
-#     path: "{{ item }}"
-#     state: directory
-#     recurse: yes
-#   with_items:
-#     - /tmp/oracle/rdbms/11g/linux/x86_64/media
-#     - /tmp/oracle/rdbms/11g/linux/x86_64/response
-#     - /tmp/oracle/rdbms/11g/linux/x86_64/install
-# 
-# - name: copy the oracle install media
-#   copy:
-#     group: dba
-#     owner: oracle
-#     src: "{{ item }}"
-#     dest: /tmp/oracle/rdbms/11g/linux/x86_64/media
-#   with_items:
-#     - p13390677_112040_Linux-x86-64_1of7.zip
-#     - p13390677_112040_Linux-x86-64_2of7.zip
-# 
-# - name: unpack the oracle install media
-#   unarchive:
-#     group: dba
-#     owner: oracle
-#     src: "{{ item.src }}"
-#     dest: /tmp/oracle/rdbms/11g/linux/x86_64/install
-#     copy: no
-#     creates: "{{ item.creates }}"
-#   with_items:
-#     - { src: '/tmp/oracle/rdbms/11g/linux/x86_64/media/p13390677_112040_Linux-x86-64_1of7.zip', 
-#         creates: '/tmp/oracle/rdbms/11g/linux/x86_64/install/database/install/addLangs.sh' }
-#     - { src: '/tmp/oracle/rdbms/11g/linux/x86_64/media/p13390677_112040_Linux-x86-64_2of7.zip', 
-#         creates: '/tmp/oracle/rdbms/11g/linux/x86_64/install/database/stage/Components/oracle.ctx' }
-# 
-# - name: copy the oracle rdbms install template
-#   template:
-#     group: dba
-#     owner: oracle
-#     src: oracle-rdbms-11204.rsp.j2
-#     dest: /tmp/oracle/rdbms/11g/linux/x86_64/response/oracle-rdbms-11204.rsp
+- name: create the directory structure
+  file:
+    group: dba
+    owner: oracle
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+  with_items:
+    - /tmp/oracle/rdbms/11g/linux/x86_64/media
+    - /tmp/oracle/rdbms/11g/linux/x86_64/response
+    - /tmp/oracle/rdbms/11g/linux/x86_64/install
+
+- name: copy the oracle install media
+  copy:
+    group: dba
+    owner: oracle
+    src: "{{ item }}"
+    dest: /tmp/oracle/rdbms/11g/linux/x86_64/media
+  with_items:
+    - p13390677_112040_Linux-x86-64_1of7.zip
+    - p13390677_112040_Linux-x86-64_2of7.zip
+
+- name: unpack the oracle install media
+  unarchive:
+    group: dba
+    owner: oracle
+    src: "{{ item.src }}"
+    dest: /tmp/oracle/rdbms/11g/linux/x86_64/install
+    copy: no
+    creates: "{{ item.creates }}"
+  with_items:
+    - { src: '/tmp/oracle/rdbms/11g/linux/x86_64/media/p13390677_112040_Linux-x86-64_1of7.zip', 
+        creates: '/tmp/oracle/rdbms/11g/linux/x86_64/install/database/install/addLangs.sh' }
+    - { src: '/tmp/oracle/rdbms/11g/linux/x86_64/media/p13390677_112040_Linux-x86-64_2of7.zip', 
+        creates: '/tmp/oracle/rdbms/11g/linux/x86_64/install/database/stage/Components/oracle.ctx' }
+
+- name: copy the oracle rdbms install template
+  template:
+    group: dba
+    owner: oracle
+    src: oracle-rdbms-11204.rsp.j2
+    dest: /tmp/oracle/rdbms/11g/linux/x86_64/response/oracle-rdbms-11204.rsp
     
+
+- name: run the oracle universal installer
+  become: yes
+  become_user: oracle
+  become_method: su
+  command: /tmp/oracle/rdbms/11g/linux/x86_64/install/database/runInstaller -silent -responseFile /tmp/oracle/rdbms/11g/linux/x86_64/response/oracle-rdbms-11204.rsp -waitforcompletion
+  register: command_result
+  failed_when: "command_result.rc != 6"
+
+- debug:
+    msg: "{{ command_result }}"
+
+#
+# Notes:
+#
 # Just for the record, the OUI exits RV=6 so that needs to be trapped and ignored
 # https://docs.oracle.com/cd/E11857_01/em.111/e12255/oui4_product_install.htm#i1007236
 # OUI exit codes:
@@ -59,16 +74,5 @@
 # -2    The installation failed. One or more validation of variables failed.
 # -3    The attempted installation encountered a prerequisite failure. Some of the optional prerequisites have not been met. See the logs for details.
 #       You can ignore this code if the prerequisite is optional.
-
-- name: run the oracle universal installer
-  become: yes
-  become_user: oracle
-  become_method: su
-  command: /tmp/oracle/rdbms/11g/linux/x86_64/install/database/runInstaller -silent -responseFile /tmp/oracle/rdbms/11g/linux/x86_64/response/oracle-rdbms-11204.rsp -waitforcompletion
-  register: command_result
-  failed_when: "command_result.rc != 6"
-
-- debug:
-    msg: "{{ command_result }}"
-
+#
 # vim:sw=2:ts=2:et:ai

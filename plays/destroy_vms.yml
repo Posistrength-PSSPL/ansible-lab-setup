@@ -1,7 +1,7 @@
 ---
 
 - name: delete virtual machine(s)
-  hosts: dev:&dbs
+  hosts: dev
   connection: local
   become: true
   become_user: root

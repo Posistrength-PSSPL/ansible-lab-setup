@@ -1,0 +1,12 @@
+1. create and install the VM
+
+virt-install 
+
+2. grab the MAC address
+
+virsh dumpxml server.example.com | awk -F\' '/mac address/ { print $2 }'
+
+3. add a static mapping
+
+virsh net-update default add ip-dhcp-host \
+  "<host mac='52:54:00:00:00:01' name='bob' ip='192.168.122.45' />" --live --config

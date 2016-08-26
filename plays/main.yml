@@ -71,8 +71,8 @@
 
   vars:
     vms:
-    - centos01.example.com
-    # - centos02.example.com
+    - client.example.com
+    - server.example.com
 
   tasks:
 

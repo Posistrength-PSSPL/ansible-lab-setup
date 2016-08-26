@@ -2,44 +2,47 @@
 localhost
 
 [vms]
-vm10.dev.internal ansible_host=192.168.0.10
-vm11.dev.internal ansible_host=192.168.0.11
-vm12.dev.internal ansible_host=192.168.122.137
+client.example.com ansible_host=192.168.122.10
+server.example.com ansible_host=192.168.122.11
 
-vm20.tst.internal ansible_host=192.168.0.20
-vm21.tst.internal ansible_host=192.168.0.20
-vm22.tst.internal ansible_host=192.168.0.20
+# vm10.dev.internal ansible_host=192.168.0.10
+# vm11.dev.internal ansible_host=192.168.0.11
+# vm12.dev.internal ansible_host=192.168.122.137
 
-vm30.prd.internal ansible_host=192.168.0.30
-vm31.prd.internal ansible_host=192.168.0.31
-vm32.prd.internal ansible_host=192.168.0.32
-
-[dev]
-vm10.dev.internal
-vm11.dev.internal
-vm12.dev.internal
-
-[tst]
-vm20.tst.internal
-vm21.tst.internal
-vm22.tst.internal
-
-[prd]
-vm30.prd.internal
-vm31.prd.internal
-vm32.prd.internal
-
-[lbs]
-vm10.dev.internal
-vm20.tst.internal
-vm30.prd.internal
-
-[apps]
-vm11.dev.internal
-vm31.tst.internal
-vm41.prd.internal
-
-[dbs]
-vm12.dev.internal
-vm22.tst.internal
-vm32.prd.internal
+# vm20.tst.internal ansible_host=192.168.0.20
+# vm21.tst.internal ansible_host=192.168.0.20
+# vm22.tst.internal ansible_host=192.168.0.20
+# 
+# vm30.prd.internal ansible_host=192.168.0.30
+# vm31.prd.internal ansible_host=192.168.0.31
+# vm32.prd.internal ansible_host=192.168.0.32
+# 
+# [dev]
+# vm10.dev.internal
+# vm11.dev.internal
+# vm12.dev.internal
+# 
+# [tst]
+# vm20.tst.internal
+# vm21.tst.internal
+# vm22.tst.internal
+# 
+# [prd]
+# vm30.prd.internal
+# vm31.prd.internal
+# vm32.prd.internal
+# 
+# [lbs]
+# vm10.dev.internal
+# vm20.tst.internal
+# vm30.prd.internal
+# 
+# [apps]
+# vm11.dev.internal
+# vm31.tst.internal
+# vm41.prd.internal
+# 
+# [dbs]
+# vm12.dev.internal
+# vm22.tst.internal
+# vm32.prd.internal

@@ -1,0 +1,12 @@
+#!/bin/sh
+
+{% for result in mac_address.results %}
+{{ result }}
+{% endfor %}
+
+
+{# {% for host in item %} #}
+{# virsh net-update default add ip-dhcp-host {{ host['stdout'] }} #}
+{# {% endfor %}  #}
+
+
