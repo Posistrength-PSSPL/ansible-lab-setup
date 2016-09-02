@@ -1,27 +1,42 @@
 ---
 
-- name: delete virtual machine(s)
-  hosts: dev
+- name: destroy virtual machine(s)
+  hosts: all
   connection: local
   become: true
   become_user: root
 
   tasks:
 
-  - name: shutdown the virtual machine(s)
-    command: virsh shutdown {{ item }}
-    with_items: "{{ inventory_hostname }}"
+  - name: stop the virtual machine
+    command: virsh destroy {{ inventory_hostname }}
     delegate_to: localhost
-    ignore_errors: yes
+    ignore_errors: true
 
-  - name: delete the virtual machine(s)
-    command: virsh undefine {{ item }}
-    with_items: "{{ inventory_hostname }}"
-    delegate_to: localhost
+  - name: grab vm mac addresses
+    shell: virsh dumpxml {{ inventory_hostname }} | awk -F\' '/mac address/ { print $2 }'
+    register: mac_address
+    ignore_errors: true
 
-  - name: remove the virtual machine disk(s)
-    command: rm -f /var/lib/libvirt/images/{{ item }}.qcow2
-    with_items: "{{ inventory_hostname }}"
+  - name: check if mac-to-ip mapping exists
+    command: grep -q {{ mac_address.stdout }} /var/lib/libvirt/dnsmasq/default.hostsfile
+    register: mac_exists
+    ignore_errors: true
+
+  - name: remove static dhcp mapping
+    command: virsh net-update default delete ip-dhcp-host "<host mac='{{ mac_address.stdout }}' name='{{ inventory_hostname }}' ip='{{ ansible_host }}' />" --live --config
     delegate_to: localhost
+    ignore_errors: true
+
+  - name: delete the virtual machine
+    command: virsh undefine {{ inventory_hostname }}
+    delegate_to: localhost
+    ignore_errors: true
+
+  - name: remove the virtual machine image
+    file: 
+      path: /var/lib/libvirt/images/{{ inventory_hostname }}.qcow2
+      state: absent
+    ignore_errors: true
 
 # vim:sw=2:ts=2:et:ai
