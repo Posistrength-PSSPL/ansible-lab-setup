@@ -28,21 +28,21 @@
     - firewall
 
   - name: create a kickstart file
-    copy: src=files/el7.ks dest=/var/www/html/el7.ks
+    copy: src=../files/el7.ks dest=/var/www/html/el7.ks
     tags:
     - content
     - apache
 
-  - name: download installation media
-    get_url: url={{ centos_url }} dest=files/ force=no
-    tags: 
-    - content
-    - iso
+  # - name: download installation media
+  #   get_url: url={{ centos_url }} dest=files/ force=no
+  #   tags: 
+  #   - content
+  #   - iso
 
-  - name: copy boot media
-    copy: src=files/CentOS-7-x86_64-Minimal-1511.iso dest=/tmp/CentOS-7-x86_64-Minimal-1511.iso force=no
-    tags:
-    - content
-    - iso
+  # - name: copy boot media
+  #   copy: src=../files/CentOS-7-x86_64-Minimal-1511.iso dest=/tmp/CentOS-7-x86_64-Minimal-1511.iso force=no
+  #   tags:
+  #   - content
+  #   - iso
 
 # vim:sw=2:ts=2:et:ai

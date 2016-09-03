@@ -18,13 +18,8 @@
     register: mac_address
     ignore_errors: true
 
-  - name: check if mac-to-ip mapping exists
-    command: grep -q {{ mac_address.stdout }} /var/lib/libvirt/dnsmasq/default.hostsfile
-    register: mac_exists
-    ignore_errors: true
-
   - name: remove static dhcp mapping
-    command: virsh net-update default delete ip-dhcp-host "<host mac='{{ mac_address.stdout }}' name='{{ inventory_hostname }}' ip='{{ ansible_host }}' />" --live --config
+    command: virsh net-update default delete ip-dhcp-host "<host mac='{{ mac_address.stdout }}' name='{{ inventory_hostname_short }}' ip='{{ ansible_host }}' />" --live --config
     delegate_to: localhost
     ignore_errors: true
 
