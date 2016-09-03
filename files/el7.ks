@@ -7,7 +7,7 @@ selinux --disabled
 firewall --disabled
 services --enabled=NetworkManager,sshd
 eula --agreed
-ignoredisk --only-use=sda
+ignoredisk --only-use=vda
 reboot
 
 bootloader --location=mbr

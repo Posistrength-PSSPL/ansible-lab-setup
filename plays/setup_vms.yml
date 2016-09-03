@@ -17,32 +17,36 @@
       --graphics none 
       --extra-args 'console=ttyS0,115200 serial ks=http://{{ ansible_virbr0.ipv4.address }}/el7.ks' 
       --os-type linux
+      --network network=default,model=virtio
+      --os-variant rhel7
       creates=/var/lib/libvirt/images/{{ inventory_hostname }}.qcow2
     delegate_to: localhost
+    register: vm_install
 
   - name: wait for virt-install to complete
     virt: 
       name={{ inventory_hostname }}
       command=status
-    register: vm_status
-    until: vm_status.status == 'shutdown'
+    register: vm_poll
+    until: vm_poll.status == 'shutdown'
     retries: 120
     delay: 30
     delegate_to: localhost
+    when: vm_install|changed
 
-  - name: grab vm mac addresses
-    shell: virsh dumpxml {{ inventory_hostname }} | awk -F\' '/mac address/ { print $2 }'
-    register: mac_address
+  # - name: grab vm mac addresses
+  #   shell: virsh dumpxml {{ inventory_hostname }} | awk -F\' '/mac address/ { print $2 }'
+  #   register: mac_address
 
-  - name: check if mac-to-ip mapping exists
-    command: grep -q {{ mac_address.stdout }} /var/lib/libvirt/dnsmasq/default.hostsfile
-    register: mac_exists
-    ignore_errors: true
+  # - name: check if mac-to-ip mapping exists
+  #   command: grep -q {{ mac_address.stdout }} /var/lib/libvirt/dnsmasq/default.hostsfile
+  #   register: mac_exists
+  #   ignore_errors: true
 
-  - name: configure static dhcp mapping
-    command: virsh net-update default add ip-dhcp-host "<host mac='{{ mac_address.stdout }}' name='{{ inventory_hostname_short }}' ip='{{ ansible_host }}' />" --live --config
-    delegate_to: localhost
-    when: mac_exists.rc != 0
+  # - name: configure static dhcp mapping
+  #   command: virsh net-update default add ip-dhcp-host "<host mac='{{ mac_address.stdout }}' name='{{ inventory_hostname_short }}' ip='{{ ansible_host }}' />" --live --config
+  #   delegate_to: localhost
+  #   when: mac_exists.rc != 0
 
   - name: start the virtual machine(s)
     command: virsh start {{ inventory_hostname }}
