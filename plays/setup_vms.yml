@@ -18,12 +18,14 @@
       --extra-args 'console=ttyS0,115200 serial ks=http://{{ ansible_virbr0.ipv4.address }}/el7.ks' 
       --os-type linux
       --network network=default,model=virtio
+      --network network=default,model=virtio
+      --network network=default,model=virtio
       --os-variant rhel7
       creates=/var/lib/libvirt/images/{{ inventory_hostname }}.qcow2
     delegate_to: localhost
     register: vm_install
 
-  - name: wait for virt-install to complete
+  - name: wait for virt-install(s) to complete
     virt: 
       name={{ inventory_hostname }}
       command=status
@@ -34,12 +36,12 @@
     delegate_to: localhost
     when: vm_install|changed
 
-  - name: grab vm mac addresses
-    shell: virsh dumpxml {{ inventory_hostname }} | awk -F\' '/mac address/ { print $2 }'
+  - name: grab the first vm mac address(es)
+    shell: virsh dumpxml {{ inventory_hostname }} | awk -F\' '/mac address/ { print $2 }' | head -1
     register: mac_address
     when: vm_install|changed
 
-  - name: configure static dhcp mapping
+  - name: configure static dhcp mapping(s)
     command: virsh net-update default add ip-dhcp-host "<host mac='{{ mac_address.stdout }}' name='{{ inventory_hostname_short }}' ip='{{ ansible_host }}' />" --live --config
     delegate_to: localhost
     when: vm_install|changed
@@ -48,6 +50,15 @@
     command: virsh start {{ inventory_hostname }}
     delegate_to: localhost
     when: vm_install|changed
+
+  - name: add additional disk to the vm(s)
+    command: qemu-img create -f raw /var/lib/libvirt/images/{{ inventory_hostname }}-1.qcow2 1G
+      creates=/var/lib/libvirt/images/{{ inventory_hostname }}-1.qcow2
+    register: disk_add
+
+  - name: attach additional disk to the vm(s)
+    command: virsh attach-disk {{ inventory_hostname }} --source /var/lib/libvirt/images/{{ inventory_hostname }}-1.qcow2 --target vdb --persistent
+    when: disk_add|changed
 
   # vars:
   # - {{ play_hosts }}

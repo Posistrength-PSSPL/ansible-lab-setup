@@ -4,7 +4,9 @@
 # [template]
 # template.example.com ansible_host=192.168.122.2
 
-[lab]
-client.example.com ansible_host=192.168.122.10
+# [lab]
+# client.example.com ansible_host=192.168.122.10
 # server.example.com ansible_host=192.168.122.20
 
+server.example.com ansible_host=192.168.122.50
+client.example.com ansible_host=192.168.122.60

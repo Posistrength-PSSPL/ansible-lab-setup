@@ -1,6 +1,6 @@
 ---
 
-- name: destroy virtual machine(s)
+- name: restart virtual machine(s)
   hosts: all
   connection: local
   become: true
@@ -16,28 +16,27 @@
   - name: grab vm mac address(es)
     shell: virsh dumpxml {{ inventory_hostname }} | awk -F\' '/mac address/ { print $2 }' | head -1
     register: mac_address
-    ignore_errors: true
+    delegate_to: localhost
 
   - name: remove static dhcp mapping(s)
     command: virsh net-update default delete ip-dhcp-host "<host mac='{{ mac_address.stdout }}' name='{{ inventory_hostname_short }}' ip='{{ ansible_host }}' />" --live --config
     delegate_to: localhost
     ignore_errors: true
 
-  - name: delete the virtual machine(s)
-    command: virsh undefine {{ inventory_hostname }}
+  - name: destroy the default network
+    command: virsh net-destroy default
     delegate_to: localhost
-    ignore_errors: true
 
-  - name: remove the virtual machine image(s)
-    file: 
-      path: /var/lib/libvirt/images/{{ inventory_hostname }}.qcow2
-      state: absent
-    ignore_errors: true
+  - name: recreate the default network
+    command: virsh net-start default
+    delegate_to: localhost
 
-  - name: remove the virtual machine image(s)
-    file: 
-      path: /var/lib/libvirt/images/{{ inventory_hostname }}-1.qcow2
-      state: absent
-    ignore_errors: true
+  - name: configure static dhcp mapping(s)
+    command: virsh net-update default add ip-dhcp-host "<host mac='{{ mac_address.stdout }}' name='{{ inventory_hostname_short }}' ip='{{ ansible_host }}' />" --live --config
+    delegate_to: localhost
+
+  - name: start the virtual machine(s)
+    command: virsh start {{ inventory_hostname }}
+    delegate_to: localhost
 
 # vim:sw=2:ts=2:et:ai

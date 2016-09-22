@@ -3,7 +3,7 @@ lang en_GB.UTF-8
 keyboard gb
 timezone Europe/London
 auth --useshadow --enablemd5
-selinux --disabled
+selinux --enforcing
 firewall --disabled
 services --enabled=NetworkManager,sshd
 eula --agreed
